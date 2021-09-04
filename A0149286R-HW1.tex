@@ -110,11 +110,29 @@ The \textit{C-space goals} are denoted by the solid borders.
 \newpage
 \section{Sample Points}
 \subsection{Circle}
+We can sample uniformly $\theta\in[0,2\pi)$. Then
+\[p=(r\cos\theta,r\sin\theta)\]
+is uniformly sampled from $S$.
 
 \subsection{Disc}
-
+For $0\leq r_0 \leq r$, we want 
+\[\Pr[||p-c||\leq r_0] = \frac{r_0^2}{r^2}\]
+to sample uniformly in the circle area.\\
+We can sample uniformly $\theta\in[0,2\pi),r_0^2\in[0,r^2]$. Then,
+\[p=(r_0\cos\theta,r_0\sin\theta)\]
 \subsection{N-Dimensional Disc}
-
+Rejection sampling can be used where $\forall i \in \{1,2,\dots,N\}$,
+sample $x_i\in[0,r]$, where $p=(x_1,x_2,\dots,x_n)$.
+Then for disc with center $c$, reject any $p$ where $||p-c||>r$.
+Given the volume of an $n$-dimensional disc with radius $R$ is
+\[V_N(R)=\frac{\pi^{n/2}}{\Gamma\left(\frac{N}{2}+1\right)}R^N\]
+where $\Gamma$ is Leonhard Euler's gamma function
+\[\Gamma(n+\frac{1}{2})
+=(n-\frac{1}{2})\cdot(n-\frac{3}{2})\cdot\dots\cdot\frac{1}{2}\cdot\pi^{1/2}\]
+We have the rejection rate
+\[\frac{r^N-V_N(r)}{r^N}=1-\frac{\pi^{N/2}}{\Gamma\left(\frac{N}{2}+1\right)}\]
+Since $\pi^N$ increases much more quickly than $\Gamma(N)$,
+we have the rejection rate quickly diminishing as $N$ increases.
 
 %======================================
 \newpage
