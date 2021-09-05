@@ -4,6 +4,8 @@
 \usetikzlibrary{positioning}
 \definecolor {processblue}{cmyk}{0.96,0,0,0}
 
+\graphicspath{ {./images/} }
+
 \begin{document}
 
 % Indicate your name and your student number here (e.g., A01xxx)
@@ -103,8 +105,10 @@ Both together will have dimension 12.
 \section{Goal Configuration}
 The \textit{C-space goals} are denoted by the solid borders.
 \subsection{}
+\includegraphics[scale=0.4]{A.png}
 
 \subsection{}
+\includegraphics[scale=0.4]{B.png}
 
 %======================================
 \newpage
@@ -124,46 +128,113 @@ We can sample uniformly $\theta\in[0,2\pi),r_0^2\in[0,r^2]$. Then,
 Rejection sampling can be used where $\forall i \in \{1,2,\dots,N\}$,
 sample $x_i\in[0,r]$, where $p=(x_1,x_2,\dots,x_n)$.
 Then for disc with center $c$, reject any $p$ where $||p-c||>r$.
-Given the volume of an $n$-dimensional disc with radius $R$ is
+Given the volume of an $n$-dimensional disc with radius $R$ is \cite{gipple14}
 \[V_N(R)=\frac{\pi^{n/2}}{\Gamma\left(\frac{N}{2}+1\right)}R^N\]
 where $\Gamma$ is Leonhard Euler's gamma function
 \[\Gamma(n+\frac{1}{2})
 =(n-\frac{1}{2})\cdot(n-\frac{3}{2})\cdot\dots\cdot\frac{1}{2}\cdot\pi^{1/2}\]
 We have the rejection rate
 \[\frac{r^N-V_N(r)}{r^N}=1-\frac{\pi^{N/2}}{\Gamma\left(\frac{N}{2}+1\right)}\]
-Since $\pi^N$ increases much more quickly than $\Gamma(N)$,
-we have the rejection rate quickly diminishing as $N$ increases.
+With the recursive formula
+\[V_n(R)=\frac{2\pi R^2}{n}V_{n-2}(R)\]
+where $R$ is independent of $N$, we can see that
+\[\lim_{n\rightarrow\infty}V_n(R)=0\]
+leading to higher rejection rates at higher values of $N$.
 
 %======================================
 \newpage
 \section{Rejection Sampling}
-
-
+First, we can obtain a bounding box for $B$ where,
+given $c_i=(c_{ix},c_{iy})$,
+\[(x_1,x_2)=(\min_i (c_{ix}-r_i),\max_i (c_{ix}+r_i))\]
+\[(y_1,y_2)=(\min_i (c_{iy}-r_i),\max_i (c_{iy}+r_i))\]
+and the bounding box $C$ is defined as 
+\[C=\{(x,y)\in\mathbb{R}^2 | x_1\leq x \leq x_2 \wedge y_1\leq y \leq y_2\}\]
+Sample uniformly $x\in[x_1,x_2],y\in[y_1,y_2]$, for $p=(x,y)$,
+then reject any $p$ where $||p-c_i||>r_i$ for all $i=1,2,3$.\\
+Depending on how much the 3 circles intersect, the rejection ratio varies.
+In the worst case, there is no intersection, so the rejection rate is
+\[1-\frac{\pi(r_1^2+r_2^2+r_3^2)}{(x_2-x_1)\cdot(y_2-y_1)}\]
+On the other hand, if one circle contains both other circles, the rate is
+\[1-\frac{\pi\cdot\max_i r_i^2}{(x_2-x_1)\cdot(y_2-y_1)}\]
+In all other cases, there is some intersection between the circles,
+so overall, we know the rejection rate $t$ to be
+\[\max\{0,1-\frac{\pi(r_1^2+r_2^2+r_3^2)}{(x_2-x_1)\cdot(y_2-y_1)}\}\leq t 
+\leq 1-\frac{\pi\cdot\max_i r_i^2}{(x_2-x_1)\cdot(y_2-y_1)}\]
 %======================================
 \newpage
 \section{PRM}
+\subsection{Upper Bound}
+\[O(N^2)\]
+If all $N$ roadmap nodes are connected, we get the quadratic order of growth.
+
+\subsection{}
 
 
 %======================================
 \newpage
 \section{Motion Planning Algorithms}
 \subsection{}
-Dynamic Programming can be used here.
+Dynamic Programming can be used here.\\
 The environment of the workshop should be relatively static,
 and the C-space of the robot movement and handling should be small,
 so it should not be computationally heavy.
+The C-space may be attributed to movement on the floor,
+and placement of the boxes, so designing a robot that keeps 
+the dimension small would benefit the implementation.
 The algorithm would be complete and simple to implement as well.
 
 \subsection{}
+PRM.\\ Overall, the dimension of the C-space is at least 6, if not more,
+depending on the degrees of freedom for each manipulator.
+Due to this, PRM may be best used here, as DP may not be feasible
+for C-space of dimensions more than 3 \cite{cho05}.
+The environment itself could be static, since there could only
+specific automotives that would need to be worked on in the assembly line.
+Probabilistic completeness is achieved as well.
+
+\subsection{*}
 
 
 %======================================
 \newpage
 \section{Hybrid A*}
-
+\subsection{Dimension}
+The dimension is 2.
+\subsection{Priority Queue}
+\begin{center}
+\begin{tabular}{c c} 
+    \hline
+    Node &  $f$-value \\ [0.5ex] 
+    \hline
+    $A$ & $3.7+3.2=6.9$ \\
+    $C$ & $2+4.1=6.1$ \\
+    $D$ & $4+3=7$ \\
+    \hline
+\end{tabular}
+\end{center}
+$B$ is not in the PQ since it is in the same grid cell as $C$ and
+\[f(B)=2.5+4=6.5>f(C)\]
 
 %======================================
 \newpage
-\section{Heuristic}
+\section{*Heuristic}
+
+\subsection{Admissible}
+\begin{equation}
+\begin{aligned}
+    h(x)&=\max\{h_1(x),h_2(x)\}\\
+    &\leq \max\{h^*(x),h^*(x)\} \quad\text{(by definition of admissibility)}\\
+    &=h^*(x)
+\end{aligned}
+\end{equation}
+where $h^*(x)$ is the true cost to the goal. $h(x)$ must be admissible.
+
+\subsection{}
+
+
+\newpage
+\bibliographystyle{abbrv}
+\bibliography{ref}
 
 \end{document}
