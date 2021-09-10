@@ -87,23 +87,27 @@ Yes.
 The configuration can be specified by 
 \[q=(\theta_1,\theta_2)\]
 for the 2 revolute joints.
-\subsection{}
-\[\dim\mathcal{C}=12\]
-Each robot has a configuration space of $\mathbb{R}^3\times SO(3)$,
-which has dimension 6. Both together will have dimension 12.
-
 
 \subsection{}
-\[\dim\mathcal{C}=12\]
+\[\dim\mathcal{C}=6\]
+Each robot can be specified by
+\[q=(x,y,\theta)\]
+which has dimension 3. Both together will have dimension 6.
+
+\subsection{}
+\[\dim\mathcal{C}=18\]
 Each manipulator's configuration can be specified by
 \[q=(\theta_1,\theta_2,\theta_3,\theta_4,\theta_5,\theta_6)\]
 for 6 revolute joints, with dimension 6. 
 Both together will have dimension 12.
+On top of that, the UAV itself without the manipulator will have
+the configuration space $\mathbb{R}^3\times SO(3)$, which has
+dimension 6. In total, the entire system has dimension 18.
 
 %======================================
 \newpage
 \section{Goal Configuration}
-The \textit{C-space goals} are denoted by the solid borders.
+The \textit{C-space goals} are denoted by the space within solid borders.
 \subsection{}
 \includegraphics[scale=0.4]{A.png}
 
@@ -124,11 +128,13 @@ For $0\leq r_0 \leq r$, we want
 to sample uniformly in the circle area.\\
 We can sample uniformly $\theta\in[0,2\pi),r_0^2\in[0,r^2]$. Then,
 \[p=(r_0\cos\theta,r_0\sin\theta)\]
+is uniformly sampled from $S$.
+
 \subsection{N-Dimensional Disc}
 Rejection sampling can be used where $\forall i \in \{1,2,\dots,N\}$,
 sample $x_i\in[0,r]$, where $p=(x_1,x_2,\dots,x_n)$.
-Then for disc with center $c$, reject any $p$ where $||p-c||>r$.
-Given the volume of an $n$-dimensional disc with radius $R$ is \cite{gipple14}
+Then for sphere with center $c$, reject any $p$ where $||p-c||>r$.
+Given the volume of an $N$-dimensional sphere with radius $R$ is \cite{gipple14}
 \[V_N(R)=\frac{\pi^{n/2}}{\Gamma\left(\frac{N}{2}+1\right)}R^N\]
 where $\Gamma$ is Leonhard Euler's gamma function
 \[\Gamma(n+\frac{1}{2})
@@ -136,9 +142,9 @@ where $\Gamma$ is Leonhard Euler's gamma function
 We have the rejection rate
 \[\frac{r^N-V_N(r)}{r^N}=1-\frac{\pi^{N/2}}{\Gamma\left(\frac{N}{2}+1\right)}\]
 With the recursive formula
-\[V_n(R)=\frac{2\pi R^2}{n}V_{n-2}(R)\]
+\[V_N(R)=\frac{2\pi R^2}{N}V_{N-2}(R)\]
 where $R$ is independent of $N$, we can see that
-\[\lim_{n\rightarrow\infty}V_n(R)=0\]
+\[\lim_{N\rightarrow\infty}V_N(R)=0\]
 leading to higher rejection rates at higher values of $N$.
 
 %======================================
@@ -165,10 +171,16 @@ so overall, we know the rejection rate $t$ to be
 \newpage
 \section{PRM}
 \subsection{Upper Bound}
-\[O(N^2)\]
-If all $N$ roadmap nodes are connected, we get the quadratic order of growth.
+\[O(n^2)\]
+If all $n$ roadmap nodes are connected, we get the quadratic order of growth.
 
 \subsection{}
+If the threshold is $t=O(1/\sqrt{n})$, then the proportion of nodes
+within the threshold for a single node would be $t^2/1=O(1/n)$. 
+Then, a total of $n\times O(1/n)=O(1)$ nodes are within the threshold 
+for a single node and the total number of calls for all nodes would be 
+\[n\times O(1)=O(n)\]
+
 
 
 %======================================
@@ -179,10 +191,11 @@ Dynamic Programming can be used here.\\
 The environment of the workshop should be relatively static,
 and the C-space of the robot movement and handling should be small,
 so it should not be computationally heavy.
-The C-space may be attributed to movement on the floor,
-and placement of the boxes, so designing a robot that keeps 
-the dimension small would benefit the implementation.
-The algorithm would be complete and simple to implement as well.
+The C-space may be attributed to movement on the floor
+and placement of the boxes,
+which could limit the dimension of the space to 3 or 4.
+Ideally, this is kept small to ease the implementation with DP.
+The algorithm would be complete and simple to implement.
 
 \subsection{}
 PRM.\\ Overall, the dimension of the C-space is at least 6, if not more,
@@ -190,11 +203,17 @@ depending on the degrees of freedom for each manipulator.
 Due to this, PRM may be best used here, as DP may not be feasible
 for C-space of dimensions more than 3 \cite{cho05}.
 The environment itself could be static, since there could only
-specific automotives that would need to be worked on in the assembly line.
+specific automotives that would need to be worked on in the assembly line,
+so pre-computation with the offline algorithm can be beneficial.
 Probabilistic completeness is achieved as well.
 
 \subsection{*}
-
+EST or RTT.\\
+With many different modules, there will be a high C-space dimension.
+The environment would also be dynamic, since it needs to reconfigure
+its shape to fit each task.
+EST and RTT are probabilistically complete, and are a good fit
+for a dynamic environment with a high C-space dimension.
 
 %======================================
 \newpage
@@ -231,6 +250,21 @@ $B$ is not in the PQ since it is in the same grid cell as $C$ and
 where $h^*(x)$ is the true cost to the goal. $h(x)$ must be admissible.
 
 \subsection{}
+\[h(x)\]
+Define $f,f_1,f_2$ to be the $f$-costs using $h,h_1,h_2$ 
+as the heuristics respectively.
+For $h(n)=\max\{h_1(n),h_2(n)\}$, 
+we have that $h(n)\geq h_1(n)$ and $h\geq h_2(n)$.
+Then, 
+\[f(n)=g(n)+h(n)\geq f_1(n)=g(n)+h_1(n)\]
+\[f(n)\geq f_2(n)\]
+Then any node expanded with $h$ as the heuristic will be expanded by
+$h_1$ or $h_2$ as the heuristic.
+Suppose the goal node $t$ has $f$-cost $f(t)$. 
+Note that $f(t)=f_1(t)=f_2(t)$.
+Then, all nodes with $f(n)<f(t)$ will be expanded by A* search.
+Thus, using $h$ as the heuristic will minimise the number of nodes
+expanded. $h$ also dominates $h_1,h_2$ \cite{russell18}.
 
 
 \newpage
