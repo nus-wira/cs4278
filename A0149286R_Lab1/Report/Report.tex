@@ -1,0 +1,64 @@
+\input{../../preamble.tex}
+
+\begin{document}
+    
+% Indicate your name and your student number here (e.g., A01xxx)
+\header{Lab 1}{Wira Azmoon Ahmad}{A0149286R}
+
+%======================================
+\section{DSDA Model}
+
+A* Search is used for this model, as the C-space is generally small. 
+On the other hand, the state space can be large especially for the larger
+COM1 map, so dynamic programming will be largely held back and not practical.
+As such A* Search is used. For this Lab, the Manhattan Distance heuristic
+is used as it is an admissible heuristic for discrete states. It is also
+better than the Euclidean distance heuristic simply via the triangle inequality.
+
+\section{CSDA Model}
+
+The state space was discretized in both location and rotation.
+For the $(x,y)$ coordinates, this was split into grid of sizes smaller
+than 1. In the generated model the chosen value was half.
+As for $\theta$, this was split into 8 to allow for finer control 
+of the robot turning.
+In the code, the discretization can be seen from the variables
+$\texttt{NUM\_SPLIT\_V, NUM\_SPLIT\_W}$.
+Hybrid A* Search is used with a combination of holonomic and
+non-holonomic heuristics. 
+Holonomic calculated the shortest path to the goal using BFS,
+taking into account diagonal movement,
+while non-holonomic used the Euclidean distance to the goal.
+Both are easily admissible, and their maximum was used.
+
+\section{DSPA Model}
+
+The reward function used was
+\[R(s,a)=\sum_{s'}T(s,a,s')R(s')\]
+
+\[R(s) = \frac{o(s)R_{MAX}}{d(s) + 1}\]
+\[o(s) =
+    \begin{cases}
+        1, & \text{if no obstacles in or around s}\\
+        -1, & \text{if s is an obstacle itself}\\
+        0, & \text{if an obstacle is a step away from s}
+    \end{cases}
+\]
+where $d(s)$ is the distance to the goal determined by BFS.\\
+It is chosen that $R_{MAX}=1$.
+The choice of the reward function largely rewards positions 
+closer to the goal, and gives 0 reward for positions near obstacles.
+The MDP is solved using Value Iteration, with tweaking of values such
+as inflation and $\epsilon$ depending on the map.
+This was chosen due to the large state space, while the dimension
+of the C-space is small. Other MDP solutions would suffer from
+dealing with a large state space.
+
+\section{Lessons and Insights}
+
+I found that even simple path planning was no easy feat, working through
+the various solutions for each problem. There is a lot of hacking and
+testing to see which algorithms and parameters fit which problem.
+There is no one-size-fits-all solution, even using a similar model.
+
+\end{document}
