@@ -379,8 +379,8 @@ class Planner(object):
                     action = (np.pi/2, 1)
                 else:
                     action = (np.pi/2, -1)
-            print("Sending actions:", action[0], action[1]*np.pi/2)
-            msg = self.create_control_msg(action[0], 0, 0, 0, 0, action[1]*np.pi/2)
+            print("Sending actions:", action[0], action[1] * np.pi/2)
+            msg = self.create_control_msg(action[0], 0, 0, 0, 0, action[1] * np.pi/2)
             self.controller.publish(msg)
             rospy.sleep(0.6)
             self.controller.publish(msg)
