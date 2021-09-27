@@ -33,7 +33,7 @@ Both are easily admissible, and their maximum was used.
 
 \section{DSPA Model}
 
-The reward function used was
+The reward function used was closely modeled as
 \[R(s,a)=\sum_{s'}T(s,a,s')R(s')\]
 
 \[R(s) = \frac{o(s)R_{MAX}}{d(s) + 1}\]
@@ -45,7 +45,9 @@ The reward function used was
     \end{cases}
 \]
 where $d(s)$ is the distance to the goal determined by BFS.\\
-It is chosen that $R_{MAX}=1$.
+It is chosen that $R_{MAX}=1$. 
+For some goals, the $R(s), o(s)$ were modified to be
+more or less risky, and empirically tested to determine the better settings.
 The choice of the reward function largely rewards positions 
 closer to the goal, and gives 0 reward for positions near obstacles.
 The MDP is solved using Value Iteration, with tweaking of values such
