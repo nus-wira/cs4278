@@ -3,7 +3,7 @@ import numpy as np
 from math import sqrt, floor
 from Queue import Queue
 
-NUM_SPLIT_W = 8
+NUM_SPLIT_W = 4
 NUM_SPLIT_V = 2
 
 class CSDAPlanner(DSDAPlanner):
@@ -22,9 +22,12 @@ class CSDAPlanner(DSDAPlanner):
 
     def discretize_actions(self):
         self.actions = []
-        for i in range(NUM_SPLIT_V + 1):
-            v = float(i) / NUM_SPLIT_V
-
+        # v_split = int(round(NUM_SPLIT_V / 2))
+        # for i in range(v_split + 1):
+        for i in range(2):
+            # v = float(i) / v_split
+            # v = float(i) / 2
+            v = i
             for j in range(NUM_SPLIT_W):
                 w = np.pi * (-1 + 2.0 * j/NUM_SPLIT_W)
                 self.actions.append((v, w))

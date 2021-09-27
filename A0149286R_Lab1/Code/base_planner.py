@@ -402,6 +402,7 @@ def create_planner(width, height, resolution, inflation_ratio, goal, publish=Tru
 
 def save_action(task, mapname, goal, planner):
     if task == 1 or task == 2:
+        task = "DSDA" if task == 1 else "CSDA"
         # save your action sequence
         result = np.array(planner.action_seq)
         np.savetxt(
@@ -415,6 +416,7 @@ def save_action(task, mapname, goal, planner):
             fmt="%.2e"
         )
     elif task == 3:
+        task = "DSPA"
         # for MDP, please dump your policy table into a json file
         dump_action_table(
             planner.action_table, 
@@ -437,7 +439,7 @@ def main(create_planner_fn, task=1):
                         help='set inflation ratio')
     parser.add_argument('-s', '--save', type=int, default=0,
                         help='to save to file')
-    parser.add_argument('-m', '--mapname', type=str, default='maze1',
+    parser.add_argument('-m', '--mapname', type=str, default='map1',
                         help='map name')
     parser.add_argument('-p', '--publish', type=int, default=1,
                         help='to publish actions')

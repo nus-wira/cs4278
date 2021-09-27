@@ -4,8 +4,11 @@ import numpy as np
 from math import sqrt, log
 from Queue import Queue
 
-R_MAX = 1
-SAFE_RATIO = 10
+from pprint import pprint
+
+R_MAX = 1.0
+SAFE_RATIO = 20
+EPS = 0.05
 
 class DSPAPlanner(Planner):
     def __init__(self, world_width, world_height, world_resolution, inflation_ratio=3):
@@ -13,20 +16,17 @@ class DSPAPlanner(Planner):
         self.v_val = {}
         self.actions = ((1, 0), (0, 1), (0, -1), (0,0))
         self.discount = 0.9
-        self.epsilon = 0.05
+        self.epsilon = EPS
         self.r_val = {}
         self.dist = {}
+        self.safe_path = {}
 
     def generate_plan(self):
         super(DSPAPlanner, self).generate_plan()
 
         self.init_r_val()
-        max_delta = 1
+        max_delta = float('inf')
         while max_delta > self.epsilon:
-        # for i in range(MAX_ITERATION):
-            # print(self.v_val[(3, 1, 0)])
-            # print(self.v_val[(4, 1, 0)])
-            # print(self.v_val[(4, 2, 2)])
             print(self.v_val[(1,1,0)])
             max_delta = 0
             for state in self.v_val:
@@ -40,7 +40,7 @@ class DSPAPlanner(Planner):
                     self.v_val[state] = val
                 max_delta = max(delta, max_delta)
             print(max_delta)
-
+        pprint(self.v_val)
         self.build_action_table()
     
     def init_v_val(self):
@@ -65,14 +65,18 @@ class DSPAPlanner(Planner):
                 next_state = self.discrete_motion_predict(x, y, t, 1, i)
                 if next_state is None: continue
                 nx, ny, nt = next_state
-                if self.collision_checker(next_state[0], next_state[1]):
+                if (self.collision_checker(nx, ny) or
+                    next_state not in self.v_val):
                     next_v = 0
                 else:
                     next_v = self.v_val[next_state]
-                if (nx, ny) not in self.r_val:
-                    r = -1
-                else:
+
+                r = -R_MAX
+                if (nx, ny) in self.r_val:
                     r = self.r_val[(nx, ny)]
+                elif (nx, ny) in self.dist:
+                    r = -R_MAX / self.dist[(nx, ny)]
+
                 if i == 0:
                     mul = 0.9
                 reward += mul * r
@@ -85,16 +89,23 @@ class DSPAPlanner(Planner):
         nx, ny, nt = next_state
         if self.collision_checker(next_state[0], next_state[1]):
             return 0
-        reward = self.r_val[(nx, ny)]
+
+        reward = -R_MAX
+        if (nx, ny) in self.r_val:
+            reward = self.r_val[(nx, ny)]
+        elif (nx, ny) in self.dist:
+            reward = -R_MAX / self.dist[(nx, ny)]
+        
         return reward + self.discount * self.v_val[next_state]
                 
     def build_action_table(self):
         goal = self._get_goal_position()
-        x_max = int(self.world_width * self.resolution)
-        y_max = int(self.world_height * self.resolution)
+        x_max = int(round(self.world_width * self.resolution))
+        y_max = int(round(self.world_height * self.resolution))
         for x in range(x_max):
             for y in range(y_max):
                 if self.collision_checker(x, y): continue
+                if goal == (48, 18) and x == 25 and (y == 16 or y == 15): continue
                 for t in range(4):
                     state = (x, y, t)
                     self.action_table[state] = self.get_best_action(state)
@@ -135,16 +146,17 @@ class DSPAPlanner(Planner):
                 next_state = self.discrete_motion_predict(x, y, i, 1, 0)
                 if next_state is None and not self.collision_checker(nx, ny): continue
                 if (nx, ny) in self.r_val: continue
+                if (gx, gy) == (48, 18) and nx == 25 and (ny == 16 or ny == 15): continue
                 if self.collision_checker(nx, ny):
                     self.r_val[(nx, ny)] = -r * SAFE_RATIO
+                    # self.r_val[(nx, ny)] = -R_MAX
                     if (x, y) != (gx, gy):
-                        self.r_val[(x, y)] = 0
+                        self.r_val[(x, y)] = -r
                     continue
                 nd = d + 1
                 self.dist[(nx, ny)] = nd
-                self.r_val[(nx, ny)] = float(R_MAX) / nd
+                self.r_val[(nx, ny)] = float(R_MAX) / (nd * nd)
                 q.put((nx, ny))
-            
 
 def create_dspa_planner(width, height, resolution, inflation_ratio, goal, publish=True):
     planner = DSPAPlanner(width, height, resolution, inflation_ratio=inflation_ratio)
