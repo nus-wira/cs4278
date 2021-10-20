@@ -23,9 +23,13 @@ Since much research has already been done on developing
 convolutional neural networks (CNN) to classify images,
 it is not prudent to reinvent the wheel for this task.
 AlexNet was chosen since its performance fit very well,
-achieving high training accuracy of around $80\%$ on the dataset.
+achieving high training validation of around $80\%$ on the dataset.
 Furthermore, it is relatively simple to implement for the task
 as seen in the short lines of code in \texttt{Model.py}.
+The model can be trained within 10 epochs.
+It is possible to continue traininig until 
+train accuracy is very close to $100\%$,
+but this did not further improve validation accuracy.
 The chosen hyperparameters using Stochastic Gradient Descent (SGD)
 were the learning rate $\alpha=0.001$ and 
 weight decay $\lambda=0.01$.
@@ -40,6 +44,8 @@ The CNN layers were left untouched, while the FC layers were
 slightly modified to include the intention as \texttt{in\_features}
 for the first FC layer
 and the \texttt{out\_features = num\_bins} from the last FC layer.
+The architecture also included dropout on some activations,
+as a regularization effect.
 
 \begin{figure}[h]
 \includegraphics[width=\textwidth]{alexnet.png}
@@ -65,7 +71,7 @@ Some data augmentation was attempted, including random
     \item Perspective
     \item AutoContrast
 \end{enumerate}
-This only improved performance very marginally.
+This only improved performance very marginally, by around $1\%$.
 
 \section{Other}
 
