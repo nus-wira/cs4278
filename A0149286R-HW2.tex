@@ -48,79 +48,114 @@ value iteration results in the optimal policy.
 \section{Girl-and-Tiger Observations}
 
 From the question and lecture notes,
-\[p(s_0=TL)=p(s_0=TR)=0.5\]
-\[p(z_i=TL|s_{i-1}=TL, listen)=p(z_i=TR|s_{i-1}=TR, listen)=0.85\]
-Since observations are independent given the state observed, 
-\begin{equation}
-    p(z_i|s_{i-1},s_i,l,z_{1:i-1})=p(z_i|s_{i-1},l)
-\end{equation}
-where $l=listen\in A$.
+\[b_0(s_0)=b_0(s_1)=0.5\]
+\[b'(s_0)
+=\frac{p(z|a,s_0)\sum_s T(s,a,s_0)b(s)}
+{\sum_{s'}p(z|a,s')\sum_s T(s,a,s')b(s)}\]
+We have $a=listen$ for all observations.
 
 \subsection{}
-In this case, we have $\forall i, s_i = s$.
+In this case, we have
+\begin{equation}
+    T(s,a,s')=
+    \begin{cases}
+        1, & \text{if } s=s'\\
+        0, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
 \begin{equation}
 \begin{aligned}
-    p(s|z_{1:i},l)
-    &=\frac{p(z_i|s,l,z_{1:i-1})p(s|l, z_{1:i-1})}
-    {\sum_{s\in S}p(z_i|s,l,z_{1:i-1})p(s|l,z_{1:i-1})}\\
-    &=\frac{p(z|s,l)p(s|l, z_{1:i-1})}
-    {\sum_{s\in S}p(z|s,l)p(s|l,z_{1:i-1})}
+    b_1(s_0)
+    &=\frac{p(TL|a,s_0)\sum_s T(s,a,s_0)b_0(s)}
+    {\sum_{s'}p(TL|a,s')\sum_s T(s,a,s')b_0(s)}\\
+    &=\frac{0.85\times 0.5}{0.85\times 0.5 + 0.15\times 0.5}\\
+    &=0.85
 \end{aligned}
 \end{equation}
-\[\]
-For $i=1$,
-\[p(s|l)=p(s)\]
-Then the probability distributions can be determined as such
-\[p(s_1=TL|z_1,l)=\frac{0.85\times 0.5}{0.85\times 0.5 + 0.15 \times 0.5}
-=0.85\]
-\[p(s_1=TR|z_1,l)=1-0.85=0.15\]
-\[p(s_2=TL|z_1,z_2,l)
-=\frac{0.15\times 0.85}{0.15\times 0.85 + 0.85 \times 0.15}
-=0.5\]
-\[p(s_2=TR|z_1,z_2,l)=0.5\]
-\[p(s_3=TL|z_1,z_2,z_3,l)
-=\frac{0.15\times 0.5}{0.15\times 0.5 + 0.85\times 0.5}
-=0.15\]
-\[p(s_3=TR|z_1,z_2,z_3,l)=0.85\]
+\begin{equation}
+    b_1(s_1)=1-0.85=0.15
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    b_2(s_0)
+    &=\frac{p(TR|a,s_0)\sum_s T(s,a,s_0)b_1(s)}
+    {\sum_{s'}p(TR|a,s')\sum_s T(s,a,s')b_1(s)}\\
+    &=\frac{0.15\times 0.85}{0.15\times 0.85 + 0.85\times 0.15}\\
+    &=0.5
+\end{aligned}
+\end{equation}
+\begin{equation}
+    b_2(s_1)=1-0.5=0.5
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    b_3(s_0)
+    &=\frac{p(TR|a,s_0)\sum_s T(s,a,s_0)b_2(s)}
+    {\sum_{s'}p(TR|a,s')\sum_s T(s,a,s')b_2(s)}\\
+    &=\frac{0.15\times 0.5}{0.15\times 0.5 + 0.85\times 0.5}\\
+    &=0.15
+\end{aligned}
+\end{equation}
+\begin{equation}
+    b_3(s_1)=1-0.15=0.85
+\end{equation}
 
 \subsection{}
-In this case we may have $s_i \neq s_{i-1}$.
+In this case, we have
+\begin{equation}
+    T(s,a,s')=
+    \begin{cases}
+        0.9, & \text{if } s=s'\\
+        0.1, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
 \begin{equation}
 \begin{aligned}
-    p(s_i|z_{1:i},l)
-    &=\frac{p(z_i|s_i,l,z_{1:i-1})p(s_i|l, z_{1:i-1})}
-    {p(z_i|z_{1:i-1},l)}\\
-    &=\frac{\sum_{s_{i-1}\in S}p(z_i|s_{i-1},s_i,l,z_{1:i-1})
-    p(s_{i-1}|s_i,z_{1:i-1},l)
-    p(s_i|l, z_{1:i-1})}
-    {\sum_{s_{i-1}\in S}p(z_i|s_{i-1},l,z_{1:i-1})p(s_{i-1}|l,z_{1:i-1})}\\
-    &=\frac{\sum_{s_{i-1}\in S}p(z_i|s_{i-1},l)
-    p(s_i|s_{i-1},z_{1:i-1},l)
-    p(s_{i-1}|l, z_{1:i-1})}
-    {\sum_{s_{i-1}\in S}p(z_i|s_{i-1},l)p(s_{i-1}|l,z_{1:i-1})}
-    \quad\text{(from (2))}\\
+    b_1(s_0)
+    &=\frac{p(TL|a,s_0)\sum_s T(s,a,s_0)b_0(s)}
+    {\sum_{s'}p(TL|a,s')\sum_s T(s,a,s')b_0(s)}\\
+    &=\frac{0.85\times (0.9\times 0.5 + 0.1 \times 0.5)}
+    {0.85\times (0.9\times 0.5 + 0.1 \times 0.5)
+    + 0.15\times (0.1\times 0.5 + 0.9 \times 0.5)}\\
+    &=0.85
 \end{aligned}
 \end{equation}
-For $i=1$,
-\[p(s_0|l)=p(s_0)\]
-Then the probability distributions can be determined as such
-\[p(s_1=TL|z_1,l)
-=\frac{0.85\times 0.9\times 0.5 + 0.15\times 0.1\times 0.5}
-{0.85\times 0.5 + 0.15\times 0.5}
-=0.78\]
-\[p(s_1=TR|z_1,l)=1-0.78=0.22\]
-\[p(s_2=TL|z_1,z_2,l)
-=\frac{0.15\times 0.9\times 0.78 + 0.85\times 0.1\times 0.22}
-{0.15\times 0.78 + 0.85 \times 0.22}
-=\frac{31}{76}=0.40789\]
-\[p(s_2=TR|z_1,z_2,l)=1-\frac{31}{76}=\frac{45}{76}=0.59211\]
-\[p(s_3=TL|z_1,z_2,z_3,l)
-=\frac{0.15\times 0.9\times \frac{31}{76} 
-+ 0.85\times 0.1\times \frac{45}{76}}
-{0.15\times \frac{31}{76} + 0.85\times \frac{45}{76}}
-=\frac{267}{1430}
-=0.18671\]
-\[p(s_3=TR|z_1,z_2,z_3,l)=0.81329\]
+\begin{equation}
+    b_1(s_1)=1-0.85=0.15
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    b_2(s_0)
+    &=\frac{p(TR|a,s_0)\sum_s T(s,a,s_0)b_1(s)}
+    {\sum_{s'}p(TR|a,s')\sum_s T(s,a,s')b_1(s)}\\
+    &=\frac{0.15\times (0.9\times 0.85 + 0.1\times 0.15)}
+    {0.15\times (0.9\times 0.85 + 0.1\times 0.15)
+    + 0.85\times (0.1\times 0.85 + 0.9\times 0.15)}\\
+    &=\frac{117}{304}\\
+    &=0.38487
+\end{aligned}
+\end{equation}
+\begin{equation}
+    b_2(s_1)=1-\frac{117}{304}=\frac{187}{304}=0.61513
+\end{equation}
+\begin{equation}
+\begin{aligned}
+    b_3(s_0)
+    &=\frac{p(TR|a,s_0)\sum_s T(s,a,s_0)b_2(s)}
+    {\sum_{s'}p(TR|a,s')\sum_s T(s,a,s')b_2(s)}\\
+    &=\frac{0.15\times (0.9\times 0.38487 + 0.1\times 0.61513)}
+    {0.15\times (0.9\times 0.38487 + 0.1\times 0.61513)
+    + 0.85\times (0.1\times 0.38487 + 0.9\times 0.61513)}\\
+    &=\frac{31}{286}\\
+    &=0.10839
+\end{aligned}
+\end{equation}
+\begin{equation}
+    b_3(s_1)=1-\frac{31}{286}=\frac{255}{286}=0.89161
+\end{equation}
+
 
 %======================================
 \newpage
@@ -143,7 +178,8 @@ Histogram Filter can be used here.\\
 To infer the intention, it is assumed that only the target car's local
 1-dimensional position history is needed, to be able to determine
 velocity, and acceleration.
-This 1-dimensional position could then be discretized to be small,
+This 1-dimensional position could then be discretized 
+to cover a small state space,
 making the histogram filter a good fit, for the same reasons
 as in the previous question.
 According to lecture 11 \cite{cai21} and GAMMA \cite{luo19}, 
@@ -214,8 +250,8 @@ where $z_1=C=\text{cry},z_2=NC=\text{no cry}$.
     \hline
         & $a_1$ & $a_2$ \\ 
     \hline
-    $s_1$ & 3 & 2 \\
-    $s_2$ & 1 & 0 \\
+    $s_1$ & -3 & -2 \\
+    $s_2$ & -1 & 0 \\
     \hline
 \end{tabular}
 \end{center}
@@ -285,16 +321,6 @@ and the optimal policy would have
 \[\pi(b_0)=\argmax_a Q(b_0,a)=LS\]
 \[\pi(b_{11})=\argmax_a Q(b_{11},a)=LS\]
 \[\pi(b_{12})=\argmax_a Q(b_{12},a)=LS\]
-
-
-% \begin {tikzpicture}
-% \node[state] (A) {LS};
-% \node[state] (B) [below left=of A] {LS};
-% \node[state] (C) [below right=of A] {OL};
-% \path[]
-%     (A) edge node[left] {$z=TL$} (B)
-%         edge node[right] {$z=TR$} (C);
-% \end{tikzpicture}
 
 %======================================
 \newpage
